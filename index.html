@@ -4,38 +4,93 @@
     <title>File Transfer</title>
 </head>
 <body>
-    <input type="file" id="fileInput" />
+    <button id="selectFolder">Select Folder</button>
+    <div id="output"></div>
     <script>
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                // Substitua pelo endereço IP do servidor na rede local: Porta 
-                const socket = new WebSocket('ws://192.168.0.1:65432/');
+        const output = document.getElementById('output');
+        let ws;
 
-                socket.addEventListener('open', function() {
-                    console.log('Connected to server');
-
-                    // Envia o nome do arquivo
-                    socket.send(file.name);
-
-                    // Envia o conteúdo do arquivo
-                    const reader = new FileReader();
-                    reader.onload = function() {
-                        const arrayBuffer = reader.result;
-                        socket.send(arrayBuffer);
-                    };
-                    reader.readAsArrayBuffer(file);
-                });
-
-                socket.addEventListener('close', function() {
-                    console.log('Connection closed');
-                });
-
-                socket.addEventListener('error', function(error) {
-                    console.error('WebSocket error:', error);
-                });
+        document.getElementById('selectFolder').addEventListener('click', async () => {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                watchDirectory(dirHandle);
+            } catch (error) {
+                console.error('Error selecting folder:', error);
             }
         });
+
+        async function watchDirectory(dirHandle) {
+            output.innerHTML = 'Monitoring directory...';
+
+            // Monitor files in the directory
+            for await (const entry of dirHandle.values()) {
+                if (entry.kind === 'file') {
+                    sendFile(entry);
+                }
+            }
+
+            // Watch for new files and changes
+            const watcher = new FileSystemWatcher(dirHandle);
+            watcher.on('change', (fileHandle) => sendFile(fileHandle));
+            watcher.start();
+        }
+
+        async function sendFile(fileHandle) {
+            const file = await fileHandle.getFile();
+            if (ws) {
+                ws.close(); // Close the previous connection if it exists
+            }
+            ws = new WebSocket('ws://localhost:65432/');
+
+            ws.addEventListener('open', () => {
+                console.log('Connected to server');
+
+                // Send the file name
+                ws.send(file.name);
+
+                // Send the file content
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const arrayBuffer = reader.result;
+                    ws.send(arrayBuffer);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            ws.addEventListener('close', () => {
+                console.log('Connection closed');
+            });
+
+            ws.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+            });
+        }
+
+        // Mock FileSystemWatcher for demonstration
+        class FileSystemWatcher {
+            constructor(dirHandle) {
+                this.dirHandle = dirHandle;
+                this.changeListeners = [];
+            }
+
+            on(event, callback) {
+                if (event === 'change') {
+                    this.changeListeners.push(callback);
+                }
+            }
+
+            async start() {
+                // This is a mock implementation. In a real application, you would use a proper file system API or library.
+                // Here, we'll just simulate file changes with a timer.
+                setInterval(async () => {
+                    for await (const entry of this.dirHandle.values()) {
+                        if (entry.kind === 'file') {
+                            this.changeListeners.forEach(callback => callback(entry));
+                        }
+                    }
+                }, 5000); // Simulate file changes every 5 seconds
+            }
+        }
     </script>
 </body>
 </html>
