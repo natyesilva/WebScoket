@@ -8,16 +8,26 @@
     <div id="output"></div>
     <script>
         const output = document.getElementById('output');
-        let ws;
 
         document.getElementById('selectFolder').addEventListener('click', async () => {
             try {
                 const dirHandle = await window.showDirectoryPicker();
+                await displayFileCount(dirHandle);
                 watchDirectory(dirHandle);
             } catch (error) {
                 console.error('Error selecting folder:', error);
             }
         });
+
+        async function displayFileCount(dirHandle) {
+            let fileCount = 0;
+            for await (const entry of dirHandle.values()) {
+                if (entry.kind === 'file') {
+                    fileCount++;
+                }
+            }
+            output.innerHTML = `Total files in the directory: ${fileCount}`;
+        }
 
         async function watchDirectory(dirHandle) {
             output.innerHTML = 'Monitoring directory...';
@@ -25,22 +35,22 @@
             // Monitor files in the directory
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file') {
-                    sendFile(entry);
+                    await sendFile(entry);
                 }
             }
 
             // Watch for new files and changes
             const watcher = new FileSystemWatcher(dirHandle);
-            watcher.on('change', (fileHandle) => sendFile(fileHandle));
+            watcher.on('change', async (fileHandle) => {
+                await sendFile(fileHandle);
+                await displayFileCount(dirHandle); // Update file count on change
+            });
             watcher.start();
         }
 
         async function sendFile(fileHandle) {
             const file = await fileHandle.getFile();
-            if (ws) {
-                ws.close(); // Close the previous connection if it exists
-            }
-            ws = new WebSocket('ws://localhost:65432/');
+            const ws = new WebSocket('ws://192.168.0.1:65432/');
 
             ws.addEventListener('open', () => {
                 console.log('Connected to server');

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 class WebSocketServer
 {
     private const int BufferSize = 1024;
+    private static int fileCount = 0;
 
     public static async Task Main(string[] args)
     {
@@ -56,6 +57,7 @@ class WebSocketServer
             }
         }
 
-        Console.WriteLine($"File {fileName} received successfully");
+        fileCount++;
+        Console.WriteLine($"File {fileName} received successfully. Total files received: {fileCount}");
     }
 }
