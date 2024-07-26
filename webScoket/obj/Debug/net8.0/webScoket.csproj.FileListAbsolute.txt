@@ -1,0 +1,14 @@
+C:\sdk\WebScoket\webScoket\bin\Debug\net8.0\webScoket.exe
+C:\sdk\WebScoket\webScoket\bin\Debug\net8.0\webScoket.deps.json
+C:\sdk\WebScoket\webScoket\bin\Debug\net8.0\webScoket.runtimeconfig.json
+C:\sdk\WebScoket\webScoket\bin\Debug\net8.0\webScoket.dll
+C:\sdk\WebScoket\webScoket\bin\Debug\net8.0\webScoket.pdb
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.GeneratedMSBuildEditorConfig.editorconfig
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.AssemblyInfoInputs.cache
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.AssemblyInfo.cs
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.csproj.CoreCompileInputs.cache
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.dll
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\refint\webScoket.dll
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.pdb
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\webScoket.genruntimeconfig.cache
+C:\sdk\WebScoket\webScoket\obj\Debug\net8.0\ref\webScoket.dll

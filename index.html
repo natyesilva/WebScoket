@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Transfer</title>
+</head>
+<body>
+    <input type="file" id="fileInput" />
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Substitua pelo endereço IP do servidor na rede local: Porta 
+                const socket = new WebSocket('ws://192.168.0.1:65432/');
+
+                socket.addEventListener('open', function() {
+                    console.log('Connected to server');
+
+                    // Envia o nome do arquivo
+                    socket.send(file.name);
+
+                    // Envia o conteúdo do arquivo
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const arrayBuffer = reader.result;
+                        socket.send(arrayBuffer);
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+
+                socket.addEventListener('close', function() {
+                    console.log('Connection closed');
+                });
+
+                socket.addEventListener('error', function(error) {
+                    console.error('WebSocket error:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
